@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_HOST: localhost
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: online_shop
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
+    ports:
+      - "3308:3306"
+    networks:
+      - online-shop-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  discovery-service:
+    image: discovery-service
+    container_name: discovery-service
+    build:
+      context: ./discovery-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    networks:
+      - online-shop-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  cloud-gateway:
+    image: cloud-gateway
+    container_name: cloud-gateway
+    build:
+      context: ./cloud-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - online-shop-network
+
+  product-service:
+    image: product-service
+    container_name: product-service
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/online_shop
+      SPRING_DATASOURCE_USERNAME: app_user
+      SPRING_DATASOURCE_PASSWORD: app_password
+    ports:
+      - "8081:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      cloud-gateway:
+        condition: service_started
+    networks:
+      - online-shop-network
+
+networks:
+  online-shop-network:
+    driver: bridge
