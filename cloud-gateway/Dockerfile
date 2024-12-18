@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-focal
+FROM eclipse-temurin:11-jdk-focal
 
 WORKDIR /app
 
@@ -11,3 +11,5 @@ COPY src ./src
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
 CMD ./mvnw spring-boot:run
+
+EXPOSE 8080
