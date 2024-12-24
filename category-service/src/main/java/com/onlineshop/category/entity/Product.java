@@ -1,4 +1,4 @@
-package com.onlineshop.product.entity;
+package com.onlineshop.category.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -37,24 +37,3 @@ public class Product {
     private Category category;
 }
 
-@Embeddable
-@Data
-class Price {
-    private String currency;
-    private BigDecimal amount;
-}
-
-@Embeddable
-@Data
-class Inventory {
-    private int total;
-    private int available;
-    private int reserved;
-}
-
-@Embeddable
-@Data
-class Attribute {
-    private String name;
-    private String value;
-}

@@ -81,6 +81,33 @@ services:
       retries: 5
       timeout: 5s
 
+  category-service:
+    image: category-service
+    container_name: category-service
+    build:
+      context: ./category-service
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/online_shop
+      SPRING_DATASOURCE_USERNAME: app_user
+      SPRING_DATASOURCE_PASSWORD: app_password
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      cloud-gateway:
+        condition: service_healthy
+    networks:
+      - online-shop-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/actuator/health" ]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
 networks:
   online-shop-network:
     driver: bridge
