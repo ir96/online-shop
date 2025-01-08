@@ -8,7 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,19 +42,22 @@ public class CategoryService {
             List<Category> categories = categoryRepository.findAll();
 
             return categories.stream()
-                    .filter(category -> Objects.nonNull(category.getCategoryProducts()) && category.getCategoryProducts().size() > THRESHOLD_VALUE)
+                    .filter(category -> Objects.nonNull(category.getCategoryProducts()) &&
+                            category.getCategoryProducts().size() > THRESHOLD_VALUE)
                     .map(category -> {
 
                         List<Product> categoryProducts = category.getCategoryProducts();
 
-                        List<Product> availableProducts = categoryProducts.stream().filter(product -> product.getInventory().getAvailable() > 0)
+                        List<Product> availableProducts = categoryProducts.stream()
+                                .filter(product -> product.getInventory().getAvailable() > 0)
                                 .collect(Collectors.toList());
 
 
                         return CategoryDTO.builder()
                             .id(category.getId())
                             .name(category.getName())
-                            .description(CollectionUtils.isEmpty(availableProducts) ? "This category has not sufficient products" :
+                            .description(CollectionUtils.isEmpty(availableProducts) ?
+                                    "This category has not sufficient products" :
                                     category.getDescription())
                             .products(category.getCategoryProducts())
                             .build();

@@ -33,7 +33,7 @@ public class Product {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="id", nullable=false)
+    @JoinColumn(name = "category_id", nullable = false) // Corrected column name
     private Category category;
 }
 
